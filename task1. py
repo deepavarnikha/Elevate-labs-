@@ -1,0 +1,51 @@
+import pandas as pd
+
+# Load the dataset
+file_path = "C:\\Users\\sangi\\OneDrive\\Desktop\\New folder\\Medical Appointment No Shows.csv" 
+df = pd.read_csv(file_path)
+
+# Step 1: Identify and Handle Missing Values
+print("Missing values in each column:\n", df.isnull().sum())
+# Example: Fill missing values in 'Age' column with the median
+if 'Age' in df.columns:
+    df['Age'] = df['Age'].fillna(df['Age'].median())
+# Drop rows with missing values (optional)
+df.dropna(inplace=True)  
+
+# Step 2: Remove Duplicate Rows
+df.drop_duplicates(inplace=True)
+print("Duplicates removed successfully.")
+
+# Step 3: Standardize Text Values
+if 'Gender' in df.columns:
+    df['Gender'] = df['Gender'].str.lower().str.strip()  
+if 'Country' in df.columns:
+    df['Country'] = df['Country'].str.title().str.strip()  
+
+# Step 4: Convert Dates to a Consistent Type
+if 'ScheduledDay' in df.columns:
+    # Handle ISO 8601 format and convert it to datetime
+    df['ScheduledDay'] = pd.to_datetime(df['ScheduledDay'], format='ISO8601', errors='coerce')
+if 'AppointmentDay' in df.columns:
+    # Handle ISO 8601 format and convert it to datetime
+    df['AppointmentDay'] = pd.to_datetime(df['AppointmentDay'], format='ISO8601', errors='coerce')
+
+# If needed, convert the dates to a specific string format (e.g., dd-mm-yyyy)
+if 'ScheduledDay' in df.columns:
+    df['ScheduledDay'] = df['ScheduledDay'].dt.strftime('%d-%m-%Y')
+if 'AppointmentDay' in df.columns:
+    df['AppointmentDay'] = df['AppointmentDay'].dt.strftime('%d-%m-%Y')
+
+# Step 5: Rename Column Headers
+df.columns = [col.lower().replace(' ', '_') for col in df.columns]
+print("Cleaned column headers:\n", df.columns)
+
+# Step 6: Check and Fix Data Types
+if 'age' in df.columns:
+    df['age'] = df['age'].astype(int)  # Ensure Age column is an integer
+if 'date_column' in df.columns:
+    df['date_column'] = pd.to_datetime(df['date_column'], errors='coerce')  # Convert date_column to datetime
+
+# Save the cleaned dataset
+df.to_csv('cleaned_dataset.csv', index=False)
+print("Dataset cleaned and saved successfully!")
